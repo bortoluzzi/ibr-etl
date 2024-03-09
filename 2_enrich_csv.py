@@ -1,7 +1,7 @@
 import sys
 import geoip2.database
-solver = geoip2.database.Reader('GeoLite2-City.mmdb') #FREE
-#solver = geoip2.database.Reader('GeoIP2-City.mmdb') #LICENSED
+#solver = geoip2.database.Reader('GeoLite2-City.mmdb') #FREE
+solver = geoip2.database.Reader('GeoIP2-City.mmdb') #LICENSED
 import awsipranges
 aws_ip_ranges = awsipranges.get_ranges()
 
