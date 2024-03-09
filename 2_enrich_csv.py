@@ -97,7 +97,7 @@ for rawline in sys.stdin:
 
         # The exclusion list allows for capture trimming. The provided list works with the three first captures conducted in 2023.
         exclude=0
-        exclude_timestamp_ranges=['2023-02', '2023-04', '2023-06', '2023-07', '2023-09-16', '2023-09-17', '2023-09-18', '2023-09-30' , '2024-03']
+        exclude_timestamp_ranges=['2023-04', '2023-06', '2023-07', '2023-09-16', '2023-09-17', '2023-09-18', '2023-09-30' , '2024-03']
         for range in exclude_timestamp_ranges:
             if range in timestamp:
                 exclude=1

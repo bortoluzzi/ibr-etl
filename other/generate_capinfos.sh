@@ -3,9 +3,10 @@
 mkdir -p capinfos
 
 echo "capinfos start"
-for f in ../*.pcap.gz
+	echo "generating capinfos from pcaps in capinfos/*"
+for f in *.pcap.gz
 do
-	echo "generating capinfos from pcaps in parent directory"
-	capinfos ${f} > 'capinfos/${f}.capinfos.txt'
+    echo "Processing ${f}"
+	capinfos ${f} > "capinfos/${f}.capinfos.txt"
 done
 echo "capinfos end"
