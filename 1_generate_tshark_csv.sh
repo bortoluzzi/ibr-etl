@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -f nohup.out ]; then
+	rm nohup.out
+fi
+
+
 if [ -f output.csv.gz ]; then
 	mv output.csv.gz output.csv.gz.old
 fi
