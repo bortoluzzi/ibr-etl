@@ -17,7 +17,7 @@ echo "tshark start"
 for f in *.pcap.gz
 do
 	echo "extracting data from ${f}"
-	time tshark -r $f -t ad -T fields -e _ws.col.Time -e ip.src -e ip.dst -e tcp.dstport -e udp.dstport -e icmp.type -Eseparator=, --log-level "critical" >> output.csv
+	time tshark -r $f -M 100000 -t ad -T fields -e _ws.col.Time -e ip.src -e ip.dst -e tcp.dstport -e udp.dstport -e icmp.type -Eseparator=, --log-level "critical" >> output.csv
 done
 echo "tshark end"
 
