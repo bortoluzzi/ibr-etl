@@ -8,12 +8,12 @@ aws_ip_ranges = awsipranges.get_ranges()
 #print("timestamp,ip.src,ip.dst,tcp.dstport,udp.dstport,icmp.type,source_country_iso_code,source_country_name,source_city_name,source_latitude,source_longitude,
 #aws_country_code,aws_country_name,aws_city_name,aws_latitude,aws_longitude,aws_region")
 
-#ipsrcfile=open("enriched_unique_source_IPs.csv","w")
-#ipdstfile=open("enriched_unique_destination_IPs.csv","w")
-#unique_ipsrc=[]
-#unique_ipsrc_enriched_output=[]
-#unique_ipdst=[]
-#unique_ipdst_enriched_output=[]
+ipsrcfile=open("enriched_unique_source_IPs.csv","w")
+ipdstfile=open("enriched_unique_destination_IPs.csv","w")
+unique_ipsrc=[]
+unique_ipsrc_enriched_output=[]
+unique_ipdst=[]
+unique_ipdst_enriched_output=[]
 
 anomalous_entries=open("enrich_tshark_anomalous_entries.csv","w")
 
@@ -84,16 +84,15 @@ for rawline in sys.stdin:
                 aws_region=str(line[16])
 
         #generate list of unique source and destination IPs
-        # This consumes constant O(n) memory!
         # You can comment if not using Neo4j for graph-based analysis
-#        if not ipsrc in unique_ipsrc:
-#            unique_ipsrc.append(ipsrc)
-#            enriched_source=ipsrc + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude
-#            unique_ipsrc_enriched_output.append(enriched_source)
-#        if not ipdst in unique_ipdst:
-#            unique_ipdst.append(ipdst)
-#            enriched_destination=ipdst + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
-#            unique_ipdst_enriched_output.append(enriched_destination)
+        if not ipsrc in unique_ipsrc:
+            unique_ipsrc.append(ipsrc)
+            enriched_source=ipsrc + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude
+            unique_ipsrc_enriched_output.append(enriched_source)
+        if not ipdst in unique_ipdst:
+            unique_ipdst.append(ipdst)
+            enriched_destination=ipdst + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
+            unique_ipdst_enriched_output.append(enriched_destination)
 
         # The exclusion list allows for capture trimming. The provided list works with the three first captures conducted in 2023.
         exclude=0
@@ -111,13 +110,13 @@ for rawline in sys.stdin:
 solver.close()
 anomalous_entries.close()
 
-#for ip in unique_ipsrc_enriched_output:
-#    ipsrcfile.write(ip)
-#    ipsrcfile.write("\n")
+for ip in unique_ipsrc_enriched_output:
+    ipsrcfile.write(ip)
+    ipsrcfile.write("\n")
 
-#for ip in unique_ipdst_enriched_output:
-#    ipdstfile.write(ip)
-#    ipdstfile.write("\n")
+for ip in unique_ipdst_enriched_output:
+    ipdstfile.write(ip)
+    ipdstfile.write("\n")
 
-#ipsrcfile.close()
-#ipdstfile.close()
+ipsrcfile.close()
+ipdstfile.close()
