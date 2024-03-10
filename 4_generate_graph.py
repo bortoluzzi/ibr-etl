@@ -1,7 +1,7 @@
 import sys
 
-ipsrcfile=open("enriched_source_IPs.csv","r")
-ipdstfile=open("enriched_destination_IPs.csv","r")
+ipsrcfile=open("enriched_unique_source_IPs.csv","r")
+ipdstfile=open("enriched_unique_destination_IPs.csv","r")
 
 commit_every=100
 
