@@ -26,7 +26,7 @@ for file in *.pcap.gz; do
 	gzip ${output}
 done
 
-echo -n
+echo -e
 echo "Step 2: Region split"
 
 cd $destination
@@ -42,7 +42,7 @@ for file in *.pcap.gz; do
 	mv $file $regiondir
 done
 
-echo -n
+echo -e
 echo "Step 3: Merging"
 
 for dir in *; do
@@ -55,6 +55,7 @@ for dir in *; do
 	fi
 done
 
+echo -e
 echo "Step 4: Compressing resulting PCAPs"
 
 for file in *.pcap; do
