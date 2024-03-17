@@ -51,7 +51,10 @@ for dir in *; do
 		filename="${dir}.pcap"
 		echo "Merging region into ${filename}"
 		mergecap -w ${filename} ${dir}/*.pcap.gz
-		echo "Merge command was mergecap -w  ${filename} ${dir}/*.pcap.gz"
+		echo "Deleting temporary data in ${dir}"
+        rm ${dir}/*.pcap.gz
+        echo "Removing directory ${dir}"
+        rmdir ${dir}
 	fi
 done
 
