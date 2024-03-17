@@ -14,7 +14,7 @@ for file in *.pcap.gz; do
 	output+='/'
 	tempfile+='/temp_'
 	output+=$(echo "$file" | sed 's/.gz$//g')
-	tempfile+=$(echo "$file" | sed 's/.gz$//g')	
+	tempfile+=$(echo "$file" | sed 's/.gz$//g')
 	ipv4=$(echo $file | grep -oP '\d+\.\d+\.\d+\.\d+')
 	echo "Generating temporary file ${file} --> ${tempfile}"
 	zcat ${file} > ${tempfile}
@@ -51,10 +51,10 @@ for dir in *; do
 		filename="${dir}.pcap"
 		echo "Merging region into ${filename}"
 		mergecap -w ${filename} ${dir}/*.pcap.gz
-		echo "Deleting temporary data in ${dir}"
-        rm ${dir}/*.pcap.gz
-        echo "Removing directory ${dir}"
-        rmdir ${dir}
+		#echo "Deleting temporary data in ${dir}"
+        	#rm ${dir}/*.pcap.gz
+	        #echo "Removing directory ${dir}"
+	        #rmdir ${dir}
 	fi
 done
 
