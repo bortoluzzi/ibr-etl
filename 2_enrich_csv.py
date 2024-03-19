@@ -16,6 +16,11 @@ unique_ipdst=[]
 unique_ipdst_enriched_output=[]
 cachesrc={}
 cachedst={}
+cachesrchit=0
+cachesrcmiss=0
+cachedsthit=0
+cachedstmiss=0
+cacheinfo=open("cacheinfo.txt","w")
 anomalous_entries=open("enrich_tshark_anomalous_entries.csv","w")
 
 for rawline in sys.stdin:
@@ -29,68 +34,86 @@ for rawline in sys.stdin:
         udpdstport=str(line[4])
         icmptype=str(line[5])
 
-        try: #enrich the source with geoip2
-            if ipsrc in cachesrc:
-                geoip_source = cachesrc['ipsrc']
-            else:
-                geoip_source = solver.city(ipsrc)# GeoIP resolution
-                cachesrc['ipsrc'] = geoip_source
-        except:
-            line.append("Unknown") #6
-            line.append("Unknown") #7
-            line.append("Unknown") #8
-            line.append("Unknown") #9
-            line.append("Unknown") #10
-        else:
-            line.append(str(geoip_source.country.iso_code)) #6
-            source_country_iso_code=str(line[6])
-            line.append(str(geoip_source.country.name)) #7
-            source_country_name=str(line[7])
-            if geoip_source.city.name:
-                line.append(str(geoip_source.city.name))
-            else:
-                line.append("Unknown")
-            source_city_name=str(line[8].replace("'"," "))
-            line.append(str(geoip_source.location.latitude)) #9
-            source_latitude=str(line[9])
-            line.append(str(geoip_source.location.longitude)) #10
-            source_longitude=str(line[10])
-
-        try: #enrich the destination with geoip2
-            if ipdst in cachedst:
-                geoip_destination = cachedst['ipdst']
-            else:
-                geoip_destination = solver.city(ipdst)# GeoIP resolution
-                cachesrc['ipdst'] = geoip_destination
-        except:
-            line.append("Unknown") #11
-            line.append("Unknown") #12
-            line.append("Unknown") #13
-            line.append("Unknown") #14
-            line.append("Unknown") #15
-        else:
-            line.append(str(geoip_destination.country.iso_code)) #11
-            aws_country_code=str(line[11])
-            line.append(str(geoip_destination.country.name)) #12
-            aws_country_name=str(line[12])
-            if geoip_destination.city.name:
-                line.append(str(geoip_destination.city.name)) #13
-            else:
-                line.append("Unknown")
-            aws_city_name=str(line[13].replace("'"," "))
-            line.append(str(geoip_destination.location.latitude)) #14
-            aws_latitude=str(line[14])
-
-            line.append(str(geoip_destination.location.longitude)) #15
-            aws_longitude=str(line[15])
-
-            try: #enrich the destination with awsipranges
-                aws_response = aws_ip_ranges.get(ipdst)
+        if not ipsrc in cachesrc.keys():
+            cachesrcmiss+=1
+            try:
+                geoip_source = solver.city(ipsrc)
             except:
-                line.append("Unknown")
+                cachesrc[ipsrc] = {}
+                cachesrc[ipsrc]['iso_code'] = "ZZ" #6
+                cachesrc[ipsrc]['country_name'] = "ZZ Country" #7
+                cachesrc[ipsrc]['city_name'] = "Unknown" #8
+                cachesrc[ipsrc]['latitude'] = "-99" #9 
+                cachesrc[ipsrc]['longitude'] = "-99" #10
             else:
-                line.append(str(aws_response.region)) #16
-                aws_region=str(line[16])
+                cachesrc[ipsrc] = {}
+                cachesrc[ipsrc]['iso_code'] = str(geoip_source.country.iso_code)#6
+                cachesrc[ipsrc]['country_name'] = str(geoip_source.country.name)#7
+                if geoip_source.city.name:
+                    cachesrc[ipsrc]['city_name'] = str(geoip_source.city.name)
+                    cachesrc[ipsrc]['city_name'] = cachesrc[ipsrc]['city_name'].replace("'"," ")#8
+                else:
+                    cachesrc[ipsrc]['city_name'] = 'Unknown'#8
+                cachesrc[ipsrc]['latitude'] = str(geoip_source.location.latitude)#9
+                cachesrc[ipsrc]['longitude'] = str(geoip_source.location.longitude)#10
+        else:
+            cachesrchit+=1
+
+        line.append(cachesrc[ipsrc]['iso_code']) #6
+        source_country_iso_code=cachesrc[ipsrc]['iso_code']#6
+        line.append(cachesrc[ipsrc]['country_name'])#7
+        source_country_name=cachesrc[ipsrc]['country_name']#7
+        line.append(cachesrc[ipsrc]['city_name'])#8
+        source_city_name=str(cachesrc[ipsrc]['city_name'])#8
+        line.append(cachesrc[ipsrc]['latitude'])#9
+        source_latitude=cachesrc[ipsrc]['latitude']#9
+        line.append(cachesrc[ipsrc]['longitude'])#10
+        source_longitude=cachesrc[ipsrc]['longitude']#10
+
+        if not ipdst in cachedst.keys():
+            cachedstmiss+=1
+            try:
+                geoip_destination = solver.city(ipdst)
+            except:
+                cachedst[ipdst] = {}
+                cachedst[ipdst]['iso_code'] = "ZZ" #11
+                cachedst[ipdst]['country_name'] = "ZZ Country" #12
+                cachedst[ipdst]['city_name'] = "Unknown" #13
+                cachedst[ipdst]['latitude'] = "-99" #14
+                cachedst[ipdst]['longitude'] = "-99" #15
+            else:
+                cachedst[ipdst] = {}
+                cachedst[ipdst]['iso_code'] = str(geoip_destination.country.iso_code)#11
+                cachedst[ipdst]['country_name'] = str(geoip_destination.country.name)#12
+                if geoip_destination.city.name:
+                    cachedst[ipdst]['city_name'] = str(geoip_destination.city.name)
+                    cachedst[ipdst]['city_name'] = cachedst[ipdst]['city_name'].replace("'"," ")#13
+                else:
+                    cachedst[ipdst]['city_name'] = 'Unknown'#13
+                cachedst[ipdst]['latitude'] = str(geoip_destination.location.latitude)#14
+                cachedst[ipdst]['longitude'] = str(geoip_destination.location.longitude)#15
+                try:
+                    aws_response = aws_ip_ranges.get(ipdst)
+                except:
+                    cachedst[ipdst]['region'] = "Unknown" #16
+                else:
+                    cachedst[ipdst]['region'] = str(aws_response.region) #16
+        else:
+            cachedsthit+=1
+                
+        line.append(cachedst[ipdst]['iso_code']) #11
+        aws_country_code=cachedst[ipdst]['iso_code'] #11
+        line.append(cachedst[ipdst]['country_name']) #12
+        aws_country_name=cachedst[ipdst]['country_name'] #12
+        line.append(cachedst[ipdst]['city_name']) #13
+        aws_city_name=cachedst[ipdst]['city_name']#13
+        line.append(cachedst[ipdst]['latitude']) #14
+        aws_latitude=cachedst[ipdst]['latitude'] #14
+        line.append(cachedst[ipdst]['longitude']) #15
+        aws_longitude=cachedst[ipdst]['longitude'] #15
+        line.append(cachedst[ipdst]['region']) #16
+        aws_region=cachedst[ipdst]['region'] #16
+
 
         #generate list of unique source and destination IPs
         # You can comment if not using Neo4j for graph-based analysis
@@ -129,3 +152,15 @@ for ip in unique_ipdst_enriched_output:
 
 ipsrcfile.close()
 ipdstfile.close()
+
+cacheinfo.write("Source IP stats" + "" + "\n")
+cacheinfo.write("Source IP cache hit: " + str(cachesrchit) + "\n")
+cacheinfo.write("Source IP cache miss: " + str(cachesrcmiss) + "\n")
+#cacheinfo.write("Source IP hit ratio is : " + str(cachesrcmiss / cachesrchit * 100) + "\n")
+cacheinfo.write("\n")
+cacheinfo.write("AWS IP stats" + "" + "\n")
+cacheinfo.write("AWS IP cache hit: " + str(cachedsthit) + "\n")
+cacheinfo.write("AWS IP cache miss: " + str(cachedstmiss) + "\n")
+#cacheinfo.write("AWS IP hit ratio is : " + str(cachedstmiss / cachedsthit * 100) + "\n")
+cacheinfo.write("\n")
+cacheinfo.close()
