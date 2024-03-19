@@ -14,7 +14,8 @@ unique_ipsrc=[]
 unique_ipsrc_enriched_output=[]
 unique_ipdst=[]
 unique_ipdst_enriched_output=[]
-
+cachesrc={}
+cachedst={}
 anomalous_entries=open("enrich_tshark_anomalous_entries.csv","w")
 
 for rawline in sys.stdin:
@@ -29,7 +30,11 @@ for rawline in sys.stdin:
         icmptype=str(line[5])
 
         try: #enrich the source with geoip2
-            geoip_source = solver.city(ipsrc)# GeoIP resolution
+            if ipsrc in cachesrc:
+                geoip_source = cachesrc['ipsrc']
+            else:
+                geoip_source = solver.city(ipsrc)# GeoIP resolution
+                cachesrc['ipsrc'] = geoip_source
         except:
             line.append("Unknown") #6
             line.append("Unknown") #7
@@ -52,7 +57,11 @@ for rawline in sys.stdin:
             source_longitude=str(line[10])
 
         try: #enrich the destination with geoip2
-            geoip_destination = solver.city(ipdst)# GeoIP resolution
+            if ipdst in cachedst:
+                geoip_destination = cachedst['ipdst']
+            else:
+                geoip_destination = solver.city(ipdst)# GeoIP resolution
+                cachesrc['ipdst'] = geoip_destination
         except:
             line.append("Unknown") #11
             line.append("Unknown") #12
@@ -104,7 +113,7 @@ for rawline in sys.stdin:
         # Leave a break line above to exit the if condition
         if exclude == 0:
             print(timestamp + "," + ipsrc + "," + ipdst + "," + tcpdstport + "," + udpdstport + "," + icmptype + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region)
-    else: #packet is anomalous (doulbe entries or currently unable to handle)
+    else:
         anomalous_entries.write(rawline)
 
 solver.close()
