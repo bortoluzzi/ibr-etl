@@ -8,8 +8,8 @@ aws_ip_ranges = awsipranges.get_ranges()
 #print("timestamp,ip.src,ip.dst,tcp.dstport,udp.dstport,icmp.type,source_country_iso_code,source_country_name,source_city_name,source_latitude,source_longitude,
 #aws_country_code,aws_country_name,aws_city_name,aws_latitude,aws_longitude,aws_region")
 
-ipsrcfile=open("enriched_unique_source_IPs.csv","w")
-ipdstfile=open("enriched_unique_destination_IPs.csv","w")
+#ipsrcfile=open("enriched_unique_source_IPs.csv","w")
+#ipdstfile=open("enriched_unique_destination_IPs.csv","w")
 unique_ipsrc=[]
 unique_ipsrc_enriched_output=[]
 unique_ipdst=[]
@@ -20,10 +20,18 @@ cachesrchit=0
 cachesrcmiss=0
 cachedsthit=0
 cachedstmiss=0
+#cacheglobalcounter=0
 cacheinfo=open("cacheinfo.txt","w")
 anomalous_entries=open("enrich_tshark_anomalous_entries.csv","w")
+trimmed_entries=open("trimmed_entries.csv","w")
 
 for rawline in sys.stdin:
+    # cacheglobalcounter+=1
+    # if cacheglobalcounter > 250000:
+    #     cachesrc.clear()
+    #     cachedst.clear()
+    #     cacheglobalcounter=0
+
     line=rawline.rstrip()
     line=line.split(',')
     if len(line) == 6:
@@ -117,14 +125,14 @@ for rawline in sys.stdin:
 
         #generate list of unique source and destination IPs
         # You can comment if not using Neo4j for graph-based analysis
-        if not ipsrc in unique_ipsrc:
-            unique_ipsrc.append(ipsrc)
-            enriched_source=ipsrc + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude
-            unique_ipsrc_enriched_output.append(enriched_source)
-        if not ipdst in unique_ipdst:
-            unique_ipdst.append(ipdst)
-            enriched_destination=ipdst + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
-            unique_ipdst_enriched_output.append(enriched_destination)
+        # if not ipsrc in unique_ipsrc:
+        #     unique_ipsrc.append(ipsrc)
+        #     enriched_source=ipsrc + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude
+        #     unique_ipsrc_enriched_output.append(enriched_source)
+        # if not ipdst in unique_ipdst:
+        #     unique_ipdst.append(ipdst)
+        #     enriched_destination=ipdst + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
+        #     unique_ipdst_enriched_output.append(enriched_destination)
 
         # The exclusion list allows for capture trimming. The provided list works with the three first captures conducted in 2023.
         exclude=0
@@ -134,33 +142,37 @@ for rawline in sys.stdin:
                 exclude=1
 
         # Leave a break line above to exit the if condition
+        output=timestamp + "," + ipsrc + "," + ipdst + "," + tcpdstport + "," + udpdstport + "," + icmptype + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
         if exclude == 0:
-            print(timestamp + "," + ipsrc + "," + ipdst + "," + tcpdstport + "," + udpdstport + "," + icmptype + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region)
+            print(output)
+        else:
+            trimmed_entries.write(output + "\n")
     else:
         anomalous_entries.write(rawline)
 
 solver.close()
 anomalous_entries.close()
+trimmed_entries.close()
 
-for ip in unique_ipsrc_enriched_output:
-    ipsrcfile.write(ip)
-    ipsrcfile.write("\n")
+# for ip in unique_ipsrc_enriched_output:
+#     ipsrcfile.write(ip)
+#     ipsrcfile.write("\n")
 
-for ip in unique_ipdst_enriched_output:
-    ipdstfile.write(ip)
-    ipdstfile.write("\n")
+# for ip in unique_ipdst_enriched_output:
+#     ipdstfile.write(ip)
+#     ipdstfile.write("\n")
 
-ipsrcfile.close()
-ipdstfile.close()
+# ipsrcfile.close()
+# ipdstfile.close()
 
 cacheinfo.write("Source IP stats" + "" + "\n")
+cacheinfo.write("Source IP addresses cached: " + str(len(cachesrc)) + "\n")
 cacheinfo.write("Source IP cache hit: " + str(cachesrchit) + "\n")
 cacheinfo.write("Source IP cache miss: " + str(cachesrcmiss) + "\n")
-#cacheinfo.write("Source IP hit ratio is : " + str(cachesrcmiss / cachesrchit * 100) + "\n")
 cacheinfo.write("\n")
 cacheinfo.write("AWS IP stats" + "" + "\n")
+cacheinfo.write("AWS IP addresses cached: " + str(len(cachedst)) + "\n")
 cacheinfo.write("AWS IP cache hit: " + str(cachedsthit) + "\n")
 cacheinfo.write("AWS IP cache miss: " + str(cachedstmiss) + "\n")
-#cacheinfo.write("AWS IP hit ratio is : " + str(cachedstmiss / cachedsthit * 100) + "\n")
 cacheinfo.write("\n")
 cacheinfo.close()
