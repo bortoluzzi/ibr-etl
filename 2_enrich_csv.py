@@ -22,7 +22,7 @@ cachedsthit=0
 cachedstmiss=0
 #cacheglobalcounter=0
 cacheinfo=open("cacheinfo.txt","w")
-anomalous_entries=open("enrich_tshark_anomalous_entries.csv","w")
+anomalous_entries=open("anomalous_entries.csv","w")
 trimmed_entries=open("trimmed_entries.csv","w")
 
 for rawline in sys.stdin:
@@ -34,7 +34,7 @@ for rawline in sys.stdin:
 
     line=rawline.rstrip()
     line=line.split(',')
-    if len(line) == 6:
+    if len(line) == 6 and len(line[1].split('.')) == 4 and len(line[2].split('.')) == 4: #DIRTY IP CHECK
         timestamp=str(line[0])
         ipsrc=str(line[1])
         ipdst=str(line[2])
