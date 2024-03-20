@@ -10,4 +10,4 @@ step3=' zcat output.rich.csv.gz | python3 ${prefix}3_summarize_radiation.py > ou
 
 etl=${step0} + ${step1} + ${step2} + ${step3}'
 
-echo $etl
+eval $etl
