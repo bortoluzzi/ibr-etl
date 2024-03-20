@@ -102,10 +102,10 @@ for rawline in sys.stdin:
                 cachedst[ipdst]['longitude'] = str(geoip_destination.location.longitude)#15
                 try:
                     aws_response = aws_ip_ranges.get(ipdst)
+                    cachedst[ipdst]['region'] = str(aws_response.region)
                 except:
                     cachedst[ipdst]['region'] = "Unknown" #16
-                else:
-                    cachedst[ipdst]['region'] = str(aws_response.region) #16
+
         else:
             cachedsthit+=1
                 
