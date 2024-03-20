@@ -87,8 +87,8 @@ for rawline in sys.stdin:
                 cachedst[ipdst]['iso_code'] = "ZZ" #11
                 cachedst[ipdst]['country_name'] = "ZZ Country" #12
                 cachedst[ipdst]['city_name'] = "Unknown" #13
-                cachedst[ipdst]['latitude'] = "-99" #14
-                cachedst[ipdst]['longitude'] = "-99" #15
+                cachedst[ipdst]['latitude'] = "-9999" #14
+                cachedst[ipdst]['longitude'] = "-9999" #15
             else:
                 cachedst[ipdst] = {}
                 cachedst[ipdst]['iso_code'] = str(geoip_destination.country.iso_code)#11
