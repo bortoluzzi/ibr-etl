@@ -34,13 +34,14 @@ for rawline in sys.stdin:
 
     line=rawline.rstrip()
     line=line.split(',')
-    if len(line) == 6 and len(line[1].split('.')) == 4 and len(line[2].split('.')) == 4: #DIRTY IP CHECK
+    if len(line) == 7 and len(line[1].split('.')) == 4 and len(line[2].split('.')) == 4: #DIRTY IP CHECK
         timestamp=str(line[0])
         ipsrc=str(line[1])
         ipdst=str(line[2])
         tcpdstport=str(line[3])
-        udpdstport=str(line[4])
-        icmptype=str(line[5])
+        tcpdstflags=str(line[4])
+        udpdstport=str(line[5])
+        icmptype=str(line[6])
 
         if not ipsrc in cachesrc.keys():
             cachesrcmiss+=1
@@ -67,16 +68,16 @@ for rawline in sys.stdin:
         else:
             cachesrchit+=1
 
-        line.append(cachesrc[ipsrc]['iso_code']) #6
-        source_country_iso_code=cachesrc[ipsrc]['iso_code']#6
-        line.append(cachesrc[ipsrc]['country_name'])#7
-        source_country_name=cachesrc[ipsrc]['country_name']#7
-        line.append(cachesrc[ipsrc]['city_name'])#8
-        source_city_name=str(cachesrc[ipsrc]['city_name'])#8
-        line.append(cachesrc[ipsrc]['latitude'])#9
-        source_latitude=cachesrc[ipsrc]['latitude']#9
-        line.append(cachesrc[ipsrc]['longitude'])#10
-        source_longitude=cachesrc[ipsrc]['longitude']#10
+        line.append(cachesrc[ipsrc]['iso_code']) #7
+        source_country_iso_code=cachesrc[ipsrc]['iso_code']#7
+        line.append(cachesrc[ipsrc]['country_name'])#8
+        source_country_name=cachesrc[ipsrc]['country_name']#8
+        line.append(cachesrc[ipsrc]['city_name'])#9
+        source_city_name=str(cachesrc[ipsrc]['city_name'])#9
+        line.append(cachesrc[ipsrc]['latitude'])#10
+        source_latitude=cachesrc[ipsrc]['latitude']#10
+        line.append(cachesrc[ipsrc]['longitude'])#11
+        source_longitude=cachesrc[ipsrc]['longitude']#11
 
         if not ipdst in cachedst.keys():
             cachedstmiss+=1
@@ -84,43 +85,43 @@ for rawline in sys.stdin:
                 geoip_destination = solver.city(ipdst)
             except:
                 cachedst[ipdst] = {}
-                cachedst[ipdst]['iso_code'] = "ZZ" #11
-                cachedst[ipdst]['country_name'] = "ZZ Country" #12
-                cachedst[ipdst]['city_name'] = "Unknown" #13
-                cachedst[ipdst]['latitude'] = "-9999" #14
-                cachedst[ipdst]['longitude'] = "-9999" #15
+                cachedst[ipdst]['iso_code'] = "ZZ" #12
+                cachedst[ipdst]['country_name'] = "ZZ Country" #13
+                cachedst[ipdst]['city_name'] = "Unknown" #14
+                cachedst[ipdst]['latitude'] = "-9999" #15
+                cachedst[ipdst]['longitude'] = "-9999" #16
             else:
                 cachedst[ipdst] = {}
-                cachedst[ipdst]['iso_code'] = str(geoip_destination.country.iso_code)#11
-                cachedst[ipdst]['country_name'] = str(geoip_destination.country.name)#12
+                cachedst[ipdst]['iso_code'] = str(geoip_destination.country.iso_code)#12
+                cachedst[ipdst]['country_name'] = str(geoip_destination.country.name)#13
                 if geoip_destination.city.name:
                     cachedst[ipdst]['city_name'] = str(geoip_destination.city.name)
-                    cachedst[ipdst]['city_name'] = cachedst[ipdst]['city_name'].replace("'"," ")#13
+                    cachedst[ipdst]['city_name'] = cachedst[ipdst]['city_name'].replace("'"," ")#14
                 else:
-                    cachedst[ipdst]['city_name'] = 'Unknown'#13
-                cachedst[ipdst]['latitude'] = str(geoip_destination.location.latitude)#14
-                cachedst[ipdst]['longitude'] = str(geoip_destination.location.longitude)#15
+                    cachedst[ipdst]['city_name'] = 'Unknown'#14
+                cachedst[ipdst]['latitude'] = str(geoip_destination.location.latitude)#15
+                cachedst[ipdst]['longitude'] = str(geoip_destination.location.longitude)#16
                 try:
                     aws_response = aws_ip_ranges.get(ipdst)
                     cachedst[ipdst]['region'] = str(aws_response.region)
                 except:
-                    cachedst[ipdst]['region'] = "Unknown" #16
+                    cachedst[ipdst]['region'] = "Unknown" #17
 
         else:
             cachedsthit+=1
                 
-        line.append(cachedst[ipdst]['iso_code']) #11
-        aws_country_code=cachedst[ipdst]['iso_code'] #11
-        line.append(cachedst[ipdst]['country_name']) #12
-        aws_country_name=cachedst[ipdst]['country_name'] #12
-        line.append(cachedst[ipdst]['city_name']) #13
-        aws_city_name=cachedst[ipdst]['city_name']#13
-        line.append(cachedst[ipdst]['latitude']) #14
-        aws_latitude=cachedst[ipdst]['latitude'] #14
-        line.append(cachedst[ipdst]['longitude']) #15
-        aws_longitude=cachedst[ipdst]['longitude'] #15
-        line.append(cachedst[ipdst]['region']) #16
-        aws_region=cachedst[ipdst]['region'] #16
+        line.append(cachedst[ipdst]['iso_code']) #12
+        aws_country_code=cachedst[ipdst]['iso_code'] #12
+        line.append(cachedst[ipdst]['country_name']) #13
+        aws_country_name=cachedst[ipdst]['country_name'] #13
+        line.append(cachedst[ipdst]['city_name']) #14
+        aws_city_name=cachedst[ipdst]['city_name']#14
+        line.append(cachedst[ipdst]['latitude']) #15
+        aws_latitude=cachedst[ipdst]['latitude'] #15
+        line.append(cachedst[ipdst]['longitude']) #16
+        aws_longitude=cachedst[ipdst]['longitude'] #16
+        line.append(cachedst[ipdst]['region']) #17
+        aws_region=cachedst[ipdst]['region'] #17
 
 
         #generate list of unique source and destination IPs
@@ -142,7 +143,7 @@ for rawline in sys.stdin:
                 exclude=1
 
         # Leave a break line above to exit the if condition
-        output=timestamp + "," + ipsrc + "," + ipdst + "," + tcpdstport + "," + udpdstport + "," + icmptype + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
+        output=timestamp + "," + ipsrc + "," + ipdst + "," + tcpdstport + "," + tcpdstflags + "," + udpdstport + "," + icmptype + "," + source_country_iso_code + "," + source_country_name + "," + source_city_name + "," + source_latitude + "," + source_longitude + "," + aws_country_code + "," + aws_country_name + "," + aws_city_name + "," + aws_latitude + "," + aws_longitude + "," + aws_region
         if exclude == 0:
             print(output)
         else:

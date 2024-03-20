@@ -5,6 +5,7 @@ import sys
 count_ipsrc={}
 count_ipdst={}
 count_tcpdstport={}
+count_tcpdstflags={}
 count_udpdstport={}
 count_icmptype={}
 count_source_country_iso_code={}
@@ -39,15 +40,16 @@ for line in sys.stdin:
     ipsrc=str(line[1])
     ipdst=str(line[2])
     tcpdstport=str(line[3])
-    udpdstport=str(line[4])
-    icmptype=str(line[5])
-    source_country_iso_code=str(line[6])
-    source_country_name=str(line[7])
-    source_city_name=str(line[8])
-    aws_country_code=str(line[11])
-    aws_country_name=str(line[12])
-    aws_city_name=str(line[13])
-    aws_region=str(line[16])
+    tcpdstflags=str(line[4])
+    udpdstport=str(line[5])
+    icmptype=str(line[6])
+    source_country_iso_code=str(line[7])
+    source_country_name=str(line[8])
+    source_city_name=str(line[9])
+    aws_country_code=str(line[12])
+    aws_country_name=str(line[13])
+    aws_city_name=str(line[14])
+    aws_region=str(line[17])
 
     if ipsrc in count_ipsrc:
         count_ipsrc[ipsrc] += 1
@@ -76,6 +78,12 @@ for line in sys.stdin:
             count_aws_region_tcp[aws_region] += 1
         else:
             count_aws_region_tcp[aws_region] = 1
+        
+        if tcpdstflags:
+            if tcpdstflags in count_tcpdstflags:
+                count_tcpdstflags[tcpdstflags] += 1
+            else:
+                count_tcpdstflags[tcpdstflags] = 1
     elif udpdstport:
         if udpdstport in count_udpdstport:
             count_udpdstport[udpdstport] += 1
@@ -221,6 +229,7 @@ genout(count_source_city_name,"City","Top 20 Radiation Sources (City)",20)
 
 # TCP, UDP and ICMP rankings
 genout(count_tcpdstport,"TCP Port","Top 20 TCP ports",20)
+genout(count_tcpdstflags,"TCP Flags","Top 20 TCP flags combinations",20)
 genout(count_udpdstport,"UDP Port","Top 20 UDP ports",20)
 genout(count_icmptype,"ICMP Type","Top 5 ICMP message types",5)
 
