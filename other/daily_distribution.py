@@ -17,8 +17,10 @@ for line in sys.stdin:
 for day,events in count_daily_events.items():
     print("{},{}".format(day,events))
 
+# This script is meant to be used with an enriched csv file.
+
 # How to use with an entire dataset file (i.e output.rich.csv.gz)
-# zcat output.rich.csv.gz | python3 daily_distribution.py > daily_distribution.txt
+# zcat output.rich.csv.gz | python3 daily_distribution.py > daily_distribution.csv
 
 # How to use for an specific port of interest (You filter the port of interest first. i.e port 10000)
 # The example works for TCP because TCP is the fourth field $4 on the CSV file. Adjust accordingly.
